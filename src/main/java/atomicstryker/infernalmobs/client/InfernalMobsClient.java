@@ -2,7 +2,6 @@ package atomicstryker.infernalmobs.client;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import cpw.mods.fml.common.eventhandler.EventPriority;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -104,23 +103,24 @@ public class InfernalMobsClient implements ISidedProxy {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public void onRenderGameInfo(RenderGameOverlayEvent.Pre event) {
-        if (InfernalMobsCore.instance()
-            .getIsHealthBarDisabled()) {
-            return;
+    @SubscribeEvent
+    public void onRenderGameInfo(RenderGameOverlayEvent.Text event) {
+
+        Entity ent = getEntityCrosshairOver(event.partialTicks, mc);
+        boolean retained = false;
+
+        renderBossBar = System.currentTimeMillis() < healthBarRetainTime;
+        if (ent == null && renderBossBar) {
+            ent = retainedTarget;
+            retained = true;
+        } else if (ent == null) {
+            retainedTarget = null;
         }
 
-        EntityLivingBase ent = retainedTarget;
-
-        if (ent == null && !renderBossBar) {
-            return;
-        }
-
-        if (ent != null) {
-         //   mod = InfernalMobsCore.getMobModifiers(ent);
+        if (ent instanceof EntityLivingBase) {
+            mod = InfernalMobsCore.getMobModifiers((EntityLivingBase) ent);
             if (mod != null) {
-                EntityLivingBase target = ent;
+                EntityLivingBase target = (EntityLivingBase) ent;
 
                 String buffer = mod.getEntityDisplayName(target);
                 int screenwidth = event.resolution.getScaledWidth();
@@ -145,6 +145,11 @@ public class InfernalMobsClient implements ISidedProxy {
                     i++;
                 }
 
+                if (!retained) {
+                    retainedTarget = target;
+                    healthBarRetainTime = System.currentTimeMillis() + 3000L;
+                }
+
             }
 
         }
@@ -152,26 +157,20 @@ public class InfernalMobsClient implements ISidedProxy {
     }
 
     @SubscribeEvent
-    public void onPreRenderGameOverlay(RenderGameOverlayEvent.Pre event) {
+    public void onPreRenderGameOverlay(RenderGameOverlayEvent.Post event) {
         if (InfernalMobsCore.instance()
             .getIsHealthBarDisabled() || event.type != RenderGameOverlayEvent.ElementType.BOSSHEALTH
             || (BossStatus.bossName != null && BossStatus.statusBarTime > 0)) {
             return;
         }
 
-        Entity ent = getEntityCrosshairOver(event.partialTicks, mc);
-        boolean retained = false;
+        EntityLivingBase ent = retainedTarget;
 
-        renderBossBar = System.currentTimeMillis() < healthBarRetainTime;
-        if (ent == null && renderBossBar) {
-            ent = retainedTarget;
-            retained = true;
-        } else if (ent == null) {
-            retainedTarget = null;
+        if (ent == null && !renderBossBar) {
+            return;
         }
 
-        if (ent instanceof EntityLivingBase) {
-            mod = InfernalMobsCore.getMobModifiers((EntityLivingBase) ent);
+        if (ent != null) {
             if (mod != null) {
                 askServerHealth(ent);
 
@@ -180,7 +179,7 @@ public class InfernalMobsClient implements ISidedProxy {
                     .bindTexture(Gui.icons);
                 GL11.glDisable(GL11.GL_BLEND);
 
-                EntityLivingBase target = (EntityLivingBase) ent;
+                EntityLivingBase target = ent;
 
                 int screenwidth = event.resolution.getScaledWidth();
 
@@ -200,14 +199,9 @@ public class InfernalMobsClient implements ISidedProxy {
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                 this.mc.getTextureManager()
                     .bindTexture(Gui.icons);
-
-                if (!retained) {
-                    retainedTarget = target;
-                    healthBarRetainTime = System.currentTimeMillis() + 3000L;
-                }
-
             }
         }
+
     }
 
     private Entity getEntityCrosshairOver(float renderTick, Minecraft mc) {
@@ -323,9 +317,10 @@ public class InfernalMobsClient implements ISidedProxy {
         airDisplayTimeout = System.currentTimeMillis() + 3000L;
     }
 
-    //Should this be backported: https://github.com/AtomicStryker/atomicstrykers-minecraft-mods/commit/067b54d2d85f378683445181c8cfbf9b87dae629 ?
+    // Should this be backported:
+    // https://github.com/AtomicStryker/atomicstrykers-minecraft-mods/commit/067b54d2d85f378683445181c8cfbf9b87dae629 ?
     @SubscribeEvent
-    public void onTick(RenderGameOverlayEvent.Pre event) {
+    public void onTick(RenderGameOverlayEvent.Post event) {
         if (System.currentTimeMillis() > airDisplayTimeout) {
             airOverrideValue = -999;
         }

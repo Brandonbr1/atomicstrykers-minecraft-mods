@@ -13,7 +13,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -103,11 +102,6 @@ public class EntityEventHandler {
                 mod.onSetAttackTarget(event.target);
             }
         }
-    }
-
-    @SubscribeEvent
-    public void onEntityLivingAttacked(LivingAttackEvent event) {
-        /* fires both client and server before hurt, but we dont need this */
     }
 
     /**

@@ -208,6 +208,7 @@ public abstract class MobModifier {
      * @return damage to be applied after we processed the value
      */
     public float onHurt(EntityLivingBase mob, DamageSource source, float amount) {
+        // WAS DONE
         // TODO does it properly fires for every mod in the chain including the first that it was called on ?
         if (nextMod != null) {
             amount = nextMod.onHurt(mob, source, amount);

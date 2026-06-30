@@ -164,7 +164,6 @@ public class InfernalMobsCore {
         modifiedPlayerTimes = new HashMap<>();
 
         config = new Configuration(evt.getSuggestedConfigurationFile());
-      //  config.load();
         if (config.hasChanged()) config.save();
         loadMods();
 
@@ -488,7 +487,7 @@ public class InfernalMobsCore {
      * @param amount value to set
      */
     public void setEntityHealthPastMax(EntityLivingBase entity, float amount) {
-        if (InfernalMobsCore.instance().healthCanGoPastOriginalMob) {
+        if (healthCanGoPastOriginalMob) {
             entity.getEntityAttribute(SharedMonsterAttributes.maxHealth)
                 .setBaseValue(amount);
         }

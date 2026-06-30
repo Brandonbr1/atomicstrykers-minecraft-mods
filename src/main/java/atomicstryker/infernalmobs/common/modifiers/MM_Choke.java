@@ -64,7 +64,8 @@ public class MM_Choke extends MobModifier {
             updateAir();
         }
 
-        return damage;
+        return super.onHurt(mob, source, damage);
+        // return damage;
     }
 
     @Override
@@ -74,7 +75,8 @@ public class MM_Choke extends MobModifier {
             updateAir();
             lastTarget = null;
         }
-        return false;
+        return super.onDeath();
+        // return false;
     }
 
     private void updateAir() {
