@@ -12,10 +12,7 @@ import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.EnchantmentData;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IEntityOwnable;
+import net.minecraft.entity.*;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.monster.IMob;
@@ -128,6 +125,7 @@ public class InfernalMobsCore {
 
     private ArrayList<ModifierLoader<?>> modifierLoaders;
 
+    private boolean healthCanGoPastOriginalMob;
     private int eliteRarity;
     private int ultraRarity;
     private int infernoRarity;
@@ -166,7 +164,7 @@ public class InfernalMobsCore {
         modifiedPlayerTimes = new HashMap<>();
 
         config = new Configuration(evt.getSuggestedConfigurationFile());
-        config.load();
+      //  config.load();
         if (config.hasChanged()) config.save();
         loadMods();
 
@@ -199,7 +197,7 @@ public class InfernalMobsCore {
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent evt) {
-        // lets use postInit so mod Blocks and Items are present
+        // let's use postInit so mod Blocks and Items are present
         loadConfig();
     }
 
@@ -241,6 +239,8 @@ public class InfernalMobsCore {
             new MM_Weakness.Loader(),
             new MM_Webber.Loader(),
             new MM_Wither.Loader());
+
+        config.load();
         modifierLoaders.removeIf(
             loader -> !config.get(Configuration.CATEGORY_GENERAL, loader.getModifierClassName() + " enabled", true)
                 .getBoolean(true));
@@ -253,8 +253,8 @@ public class InfernalMobsCore {
      */
     private void loadConfig() {
         // spotless:off
-        eliteRarity = config.get(Configuration.CATEGORY_GENERAL, "eliteRarity", 15, "One in THIS many Mobs will become atleast rare").getInt();
-        ultraRarity = config.get(Configuration.CATEGORY_GENERAL, "ultraRarity", 7, "One in THIS many already rare Mobs will become atleast ultra").getInt();
+        eliteRarity = config.get(Configuration.CATEGORY_GENERAL, "eliteRarity", 15, "One in THIS many Mobs will become at least rare").getInt();
+        ultraRarity = config.get(Configuration.CATEGORY_GENERAL, "ultraRarity", 7, "One in THIS many already rare Mobs will become at least ultra").getInt();
         infernoRarity = config.get(Configuration.CATEGORY_GENERAL, "infernoRarity", 7, "One in THIS many already ultra Mobs will become infernal").getInt();
         minEliteModifiers = config.get(Configuration.CATEGORY_GENERAL, "minEliteModifiers", 2, "Minimum number of Modifiers an Elite mob will receive").getInt();
         maxEliteModifiers = config.get(Configuration.CATEGORY_GENERAL, "maxEliteModifiers", 5, "Maximum number of Modifiers an Elite mob will receive").getInt();
@@ -262,9 +262,10 @@ public class InfernalMobsCore {
         maxUltraModifiers = config.get(Configuration.CATEGORY_GENERAL, "maxUltraModifiers", 10, "Maximum number of Modifiers an Ultra mob will receive").getInt();
         minInfernoModifiers = config.get(Configuration.CATEGORY_GENERAL, "minInfernoModifiers", 8, "Minimum number of Modifiers an Inferno mob will receive").getInt();
         maxInfernoModifiers = config.get(Configuration.CATEGORY_GENERAL, "maxInfernoModifiers", 15, "Maximum number of Modifiers an Inferno mob will receive").getInt();
-        useSimpleEntityClassNames = config.get(Configuration.CATEGORY_GENERAL, "useSimpleEntityClassnames", true, "Use Entity class names instead of ingame Entity names for the config").getBoolean(true);
-        disableHealthBar = config.get(Configuration.CATEGORY_GENERAL, "disableGUIoverlay", false, "Disables the ingame Health and Name overlay").getBoolean(false);
-        modHealthFactor = config.get(Configuration.CATEGORY_GENERAL, "mobHealthFactor", "1.0", "Multiplier applied ontop of all of the modified Mobs health").getDouble(1.0D);
+        useSimpleEntityClassNames = config.get(Configuration.CATEGORY_GENERAL, "useSimpleEntityClassnames", true, "Use Entity class names instead of in-game Entity names for the config").getBoolean(true);
+        disableHealthBar = config.get(Configuration.CATEGORY_GENERAL, "disableGUIoverlay", false, "Disables the in-game Health and Name overlay").getBoolean(false);
+        modHealthFactor = config.get(Configuration.CATEGORY_GENERAL, "mobHealthFactor", "1.0", "Multiplier applied on top of all of the modified Mobs health").getDouble(1.0D);
+        healthCanGoPastOriginalMob = config.get(Configuration.CATEGORY_GENERAL, "healthCanGoPastOriginalMob", false, "If a Mob's health is able to go beyond its original max health. False is original behaviour, true is new GTNH behaviour").getBoolean(false);
         // spotless:on
 
         parseItemsForList(
@@ -487,6 +488,10 @@ public class InfernalMobsCore {
      * @param amount value to set
      */
     public void setEntityHealthPastMax(EntityLivingBase entity, float amount) {
+        if (InfernalMobsCore.instance().healthCanGoPastOriginalMob) {
+            entity.getEntityAttribute(SharedMonsterAttributes.maxHealth)
+                .setBaseValue(amount);
+        }
         entity.setHealth(amount);
         this.sendHealthPacket(entity, amount);
     }

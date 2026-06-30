@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.chunk.Chunk;
@@ -68,7 +69,8 @@ public class EntityEventHandler {
 
     @SubscribeEvent
     public void onEntityJoinedWorld(EntityJoinWorldEvent event) {
-        if (event.entity instanceof EntityLivingBase) {
+        // https://github.com/AtomicStryker/atomicstrykers-minecraft-mods/blob/c662924d8b304cee561b32a1fbaf5f08120fd6f2/InfernalMobs/src/main/java/atomicstryker/infernalmobs/common/EntityEventHandler.java#L41
+        if (event.entity instanceof EntityLivingBase && event.entity instanceof IMob) {
             String savedMods = event.entity.getEntityData()
                 .getString(InfernalMobsCore.getNBTTag());
             if (!savedMods.isEmpty()) {
