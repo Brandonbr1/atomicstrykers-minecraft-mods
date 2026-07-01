@@ -36,35 +36,7 @@ import atomicstryker.infernalmobs.common.commands.InfernalCommandFindEntityClass
 import atomicstryker.infernalmobs.common.commands.InfernalCommandSpawnInfernal;
 import atomicstryker.infernalmobs.common.events.EntityEventHandler;
 import atomicstryker.infernalmobs.common.events.SaveEventHandler;
-import atomicstryker.infernalmobs.common.modifiers.MM_1UP;
-import atomicstryker.infernalmobs.common.modifiers.MM_Alchemist;
-import atomicstryker.infernalmobs.common.modifiers.MM_Berserk;
-import atomicstryker.infernalmobs.common.modifiers.MM_Blastoff;
-import atomicstryker.infernalmobs.common.modifiers.MM_Bulwark;
-import atomicstryker.infernalmobs.common.modifiers.MM_Choke;
-import atomicstryker.infernalmobs.common.modifiers.MM_Cloaking;
-import atomicstryker.infernalmobs.common.modifiers.MM_Darkness;
-import atomicstryker.infernalmobs.common.modifiers.MM_Ender;
-import atomicstryker.infernalmobs.common.modifiers.MM_Exhaust;
-import atomicstryker.infernalmobs.common.modifiers.MM_Fiery;
-import atomicstryker.infernalmobs.common.modifiers.MM_Ghastly;
-import atomicstryker.infernalmobs.common.modifiers.MM_Gravity;
-import atomicstryker.infernalmobs.common.modifiers.MM_Lifesteal;
-import atomicstryker.infernalmobs.common.modifiers.MM_Ninja;
-import atomicstryker.infernalmobs.common.modifiers.MM_Poisonous;
-import atomicstryker.infernalmobs.common.modifiers.MM_Quicksand;
-import atomicstryker.infernalmobs.common.modifiers.MM_Regen;
-import atomicstryker.infernalmobs.common.modifiers.MM_Rust;
-import atomicstryker.infernalmobs.common.modifiers.MM_Sapper;
-import atomicstryker.infernalmobs.common.modifiers.MM_Sprint;
-import atomicstryker.infernalmobs.common.modifiers.MM_Sticky;
-import atomicstryker.infernalmobs.common.modifiers.MM_Storm;
-import atomicstryker.infernalmobs.common.modifiers.MM_Vengeance;
-import atomicstryker.infernalmobs.common.modifiers.MM_Weakness;
-import atomicstryker.infernalmobs.common.modifiers.MM_Webber;
-import atomicstryker.infernalmobs.common.modifiers.MM_Wither;
-import atomicstryker.infernalmobs.common.modifiers.MobModifier;
-import atomicstryker.infernalmobs.common.modifiers.ModifierLoader;
+import atomicstryker.infernalmobs.common.modifiers.*;
 import atomicstryker.infernalmobs.common.network.NetworkHelper;
 import atomicstryker.infernalmobs.common.network.packets.AirPacket;
 import atomicstryker.infernalmobs.common.network.packets.HealthPacket;
@@ -126,6 +98,8 @@ public class InfernalMobsCore {
     private ArrayList<ModifierLoader<?>> modifierLoaders;
 
     private boolean healthCanGoPastOriginalMob;
+    private boolean reflectionFiresFromThorns;
+
     private int eliteRarity;
     private int ultraRarity;
     private int infernoRarity;
@@ -237,7 +211,8 @@ public class InfernalMobsCore {
             new MM_Vengeance.Loader(),
             new MM_Weakness.Loader(),
             new MM_Webber.Loader(),
-            new MM_Wither.Loader());
+            new MM_Wither.Loader(),
+            new MM_Unyielding.Loader());
 
         config.load();
         modifierLoaders.removeIf(
@@ -265,6 +240,7 @@ public class InfernalMobsCore {
         disableHealthBar = config.get(Configuration.CATEGORY_GENERAL, "disableGUIoverlay", false, "Disables the in-game Health and Name overlay").getBoolean(false);
         modHealthFactor = config.get(Configuration.CATEGORY_GENERAL, "mobHealthFactor", "1.0", "Multiplier applied on top of all of the modified Mobs health").getDouble(1.0D);
         healthCanGoPastOriginalMob = config.get(Configuration.CATEGORY_GENERAL, "healthCanGoPastOriginalMob", false, "If a Mob's health is able to go beyond its original max health. False is original behaviour, true is new GTNH behaviour").getBoolean(false);
+        reflectionFiresFromThorns = config.get(Configuration.CATEGORY_GENERAL, "Vengeance activates if thorns", false, "Should thorns cause vengeance to activate?").getBoolean(false);
         // spotless:on
 
         parseItemsForList(
@@ -921,4 +897,12 @@ public class InfernalMobsCore {
     public int getMaxInfernoModifiers() {
         return maxInfernoModifiers;
     }
+
+    public boolean thornsActivatesVengeance(String damageSource) {
+        if (reflectionFiresFromThorns) {
+            return false;
+        }
+        return damageSource.equals("thorns");
+    }
+
 }

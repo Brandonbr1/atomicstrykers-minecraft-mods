@@ -227,7 +227,7 @@ public class InfernalMobsClient implements ISidedProxy {
                 double lowestDistance = reachDist2;
                 Entity iterEnt;
                 Entity pointedEntity = null;
-                for (Object obj : mc.theWorld.getEntitiesWithinAABBExcludingEntity(
+                for (Entity obj : mc.theWorld.getEntitiesWithinAABBExcludingEntity(
                     mc.renderViewEntity,
                     mc.renderViewEntity.boundingBox
                         .addCoord(
@@ -235,7 +235,7 @@ public class InfernalMobsClient implements ISidedProxy {
                             viewEntityLookVec.yCoord * reachDistance,
                             viewEntityLookVec.zCoord * reachDistance)
                         .expand(expandBBvalue, expandBBvalue, expandBBvalue))) {
-                    iterEnt = (Entity) obj;
+                    iterEnt = obj;
                     if (iterEnt.canBeCollidedWith()) {
                         float entBorderSize = iterEnt.getCollisionBorderSize();
                         AxisAlignedBB entHitBox = iterEnt.boundingBox
