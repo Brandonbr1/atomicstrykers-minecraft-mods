@@ -65,8 +65,11 @@ public class InfernalMobsClient implements ISidedProxy {
 
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {
-        mod = null;
-        if (event.world.isRemote) retainedTarget = null;
+
+        if (event.world.isRemote) {
+            mod = null;
+            retainedTarget = null;
+        }
     }
 
     @SubscribeEvent
