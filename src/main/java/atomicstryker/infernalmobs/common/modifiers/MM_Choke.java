@@ -76,7 +76,6 @@ public class MM_Choke extends MobModifier {
             lastTarget = null;
         }
         return super.onDeath();
-        // return false;
     }
 
     private void updateAir() {

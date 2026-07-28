@@ -113,6 +113,8 @@ public class InfernalMobsCore {
     private boolean useSimpleEntityClassNames;
     private boolean disableHealthBar;
     private double modHealthFactor;
+    private int oldIFFactor;
+    public boolean useSystemTime;
 
     private Entity infCheckA;
     private Entity infCheckB;
@@ -274,6 +276,9 @@ public class InfernalMobsCore {
         modHealthFactor = config.get(Configuration.CATEGORY_GENERAL, "mobHealthFactor", "1.0", "Multiplier applied on top of all of the modified Mobs health").getDouble(1.0D);
         healthCanGoPastOriginalMob = config.get(Configuration.CATEGORY_GENERAL, "healthCanGoPastOriginalMob", false, "If a Mob's health is able to go beyond its original max health. False is original behaviour, true is new GTNH behaviour").getBoolean(false);
         reflectionFiresFromThorns = config.get(Configuration.CATEGORY_GENERAL, "Vengeance activates if thorns", false, "Should thorns cause vengeance to activate?").getBoolean(false);
+        oldIFFactor = config.get(Configuration.CATEGORY_GENERAL, "Infernal Mobs timer factor", 50, "The amount in which the cooldowns are divided by. 50 is GTNH. 1 is Original").getInt(50);
+
+        useSystemTime = config.get(Configuration.CATEGORY_GENERAL, "Use System time for cooldowns", false, "Should System.currentTimeMillis() be used instead of mob.ticksExisted. False is GTNH. True is Original").getBoolean(false);
         // spotless:on
 
         parseItemsForList(
@@ -936,6 +941,17 @@ public class InfernalMobsCore {
             return false;
         }
         return damageSource.equals("thorns");
+    }
+
+    public int getOldIFFactor() {
+        return oldIFFactor;
+    }
+
+    public long getCooldownTime(Entity entity) {
+        if (useSystemTime) {
+            return System.currentTimeMillis();
+        }
+        return entity.ticksExisted;
     }
 
 }

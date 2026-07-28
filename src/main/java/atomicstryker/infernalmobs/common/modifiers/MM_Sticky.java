@@ -11,6 +11,8 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraftforge.common.config.Configuration;
 
+import atomicstryker.infernalmobs.common.InfernalMobsCore;
+
 public class MM_Sticky extends MobModifier {
 
     private static final String[] suffix = { "ofSnagging", "theQuickFingered", "ofPettyTheft", "yoink" };
@@ -32,7 +34,8 @@ public class MM_Sticky extends MobModifier {
             EntityPlayer p = (EntityPlayer) source.getEntity();
             ItemStack weapon = p.inventory.getStackInSlot(p.inventory.currentItem);
             if (weapon != null) {
-                long time = mob.ticksExisted;
+                long time = InfernalMobsCore.instance()
+                    .getCooldownTime(mob);
                 if (time > nextAbilityUse && source.getEntity() != null) {
                     nextAbilityUse = time + coolDown;
                     EntityItem drop = p
@@ -81,7 +84,9 @@ public class MM_Sticky extends MobModifier {
         @Override
         public void loadConfig(Configuration config) {
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 15000L, "Time between ability uses")
-                .getInt(15000) / 50;
+                .getInt(15000)
+                / InfernalMobsCore.instance()
+                    .getOldIFFactor();
         }
     }
 }

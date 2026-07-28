@@ -49,7 +49,8 @@ public class MM_Blastoff extends MobModifier {
             return;
         }
 
-        long time = mob.ticksExisted;
+        long time = InfernalMobsCore.instance()
+            .getCooldownTime(mob);
         if (time > nextAbilityUse) {
             nextAbilityUse = time + coolDown;
             mob.worldObj.playSoundAtEntity(
@@ -96,7 +97,9 @@ public class MM_Blastoff extends MobModifier {
         @Override
         public void loadConfig(Configuration config) {
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 15000L, "Time between ability uses")
-                .getInt(15000) / 50;
+                .getInt(15000)
+                / InfernalMobsCore.instance()
+                    .getOldIFFactor();
         }
     }
 }

@@ -9,6 +9,8 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.config.Configuration;
 
+import atomicstryker.infernalmobs.common.InfernalMobsCore;
+
 public class MM_Webber extends MobModifier {
 
     private static final Class<?>[] modBans = { MM_Gravity.class, MM_Blastoff.class };
@@ -50,7 +52,8 @@ public class MM_Webber extends MobModifier {
         int y = MathHelper.floor_double(target.posY);
         int z = MathHelper.floor_double(target.posZ);
 
-        long time = mob.ticksExisted;
+        long time = InfernalMobsCore.instance()
+            .getCooldownTime(mob);
         if (time > lastAbilityUse + coolDown) {
             int offset;
             if (target.worldObj.getBlock(x, y - 1, z) == Blocks.air) {
@@ -100,7 +103,9 @@ public class MM_Webber extends MobModifier {
         @Override
         public void loadConfig(Configuration config) {
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 15000L, "Time between ability uses")
-                .getInt(15000) / 50;
+                .getInt(15000)
+                / InfernalMobsCore.instance()
+                    .getOldIFFactor();
         }
     }
 }

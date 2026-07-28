@@ -5,6 +5,8 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.common.config.Configuration;
 
+import atomicstryker.infernalmobs.common.InfernalMobsCore;
+
 public class MM_Sprint extends MobModifier {
 
     private static final String[] suffix = { "ofBolting", "theSwiftOne", "ofbeinginyourFace" };
@@ -22,7 +24,8 @@ public class MM_Sprint extends MobModifier {
     @Override
     public boolean onUpdate(EntityLivingBase mob) {
         if (getMobTarget() != null) {
-            long time = mob.ticksExisted;
+            long time = InfernalMobsCore.instance()
+                .getCooldownTime(mob);
             if (time > nextAbilityUse) {
                 nextAbilityUse = time + coolDown;
                 sprinting = !sprinting;
@@ -105,7 +108,9 @@ public class MM_Sprint extends MobModifier {
         @Override
         public void loadConfig(Configuration config) {
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 5000L, "Time between ability uses")
-                .getInt(5000) / 50;
+                .getInt(5000)
+                / InfernalMobsCore.instance()
+                    .getOldIFFactor();
         }
     }
 }

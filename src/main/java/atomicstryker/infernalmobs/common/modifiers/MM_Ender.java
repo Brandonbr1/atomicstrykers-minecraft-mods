@@ -29,7 +29,8 @@ public class MM_Ender extends MobModifier {
 
     @Override
     public float onHurt(EntityLivingBase mob, DamageSource source, float damage) {
-        long time = mob.ticksExisted;
+        long time = InfernalMobsCore.instance()
+            .getCooldownTime(mob);
         if (time > nextAbilityUse && source.getEntity() != null
             && source.getEntity() != mob
             && teleportToEntity(mob, source.getEntity())
@@ -151,7 +152,9 @@ public class MM_Ender extends MobModifier {
         @Override
         public void loadConfig(Configuration config) {
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 15000L, "Time between ability uses")
-                .getInt(15000) / 50;
+                .getInt(15000)
+                / InfernalMobsCore.instance()
+                    .getOldIFFactor();
             reflectMultiplier = (float) config.get(
                 getModifierClassName(),
                 "enderReflectMultiplier",

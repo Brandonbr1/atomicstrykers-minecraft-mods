@@ -32,6 +32,7 @@ import atomicstryker.infernalmobs.common.network.packets.HealthPacket;
 import atomicstryker.infernalmobs.common.network.packets.MobModsPacket;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class InfernalMobsClient implements ISidedProxy {
@@ -106,7 +107,7 @@ public class InfernalMobsClient implements ISidedProxy {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public void onRenderGameInfo(RenderGameOverlayEvent.Text event) {
 
         Entity ent = getEntityCrosshairOver(event.partialTicks, mc);

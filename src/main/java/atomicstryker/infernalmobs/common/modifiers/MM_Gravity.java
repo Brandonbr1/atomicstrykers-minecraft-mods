@@ -51,7 +51,8 @@ public class MM_Gravity extends MobModifier {
             return;
         }
 
-        long time = mob.ticksExisted;
+        long time = InfernalMobsCore.instance()
+            .getCooldownTime(mob);
         if (time > nextAbilityUse) {
             nextAbilityUse = time + coolDown;
 
@@ -122,7 +123,9 @@ public class MM_Gravity extends MobModifier {
         @Override
         public void loadConfig(Configuration config) {
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 5000L, "Time between ability uses")
-                .getInt(5000) / 50;
+                .getInt(5000)
+                / InfernalMobsCore.instance()
+                    .getOldIFFactor();
             double maxDistance = config.get(getModifierClassName(), "maxDistance", 40, "Range of ability.")
                 .getDouble(40);
             maxDistanceSquared = maxDistance * maxDistance;

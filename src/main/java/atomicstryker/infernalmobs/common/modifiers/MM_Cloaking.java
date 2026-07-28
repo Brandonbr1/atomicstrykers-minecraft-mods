@@ -10,6 +10,8 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.config.Configuration;
 
+import atomicstryker.infernalmobs.common.InfernalMobsCore;
+
 public class MM_Cloaking extends MobModifier {
 
     private static final Class<?>[] disallowed = { EntitySpider.class };
@@ -42,7 +44,8 @@ public class MM_Cloaking extends MobModifier {
     }
 
     private void tryAbility(EntityLivingBase mob) {
-        long time = mob.ticksExisted;
+        long time = InfernalMobsCore.instance()
+            .getCooldownTime(mob);
         if (time > nextAbilityUse) {
             nextAbilityUse = time + coolDown;
             mob.addPotionEffect(new PotionEffect(Potion.invisibility.id, potionDuration));
@@ -80,7 +83,9 @@ public class MM_Cloaking extends MobModifier {
             potionDuration = config.get(getModifierClassName(), "cloakingDurationTicks", 200L, "Time mob is cloaked")
                 .getInt(200);
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 12000L, "Time between ability uses")
-                .getInt(12000) / 50;
+                .getInt(12000)
+                / InfernalMobsCore.instance()
+                    .getOldIFFactor();
         }
     }
 }

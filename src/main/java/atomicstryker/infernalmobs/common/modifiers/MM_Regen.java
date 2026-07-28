@@ -21,7 +21,8 @@ public class MM_Regen extends MobModifier {
     @Override
     public boolean onUpdate(EntityLivingBase mob) {
         if (mob.getHealth() < getActualMaxHealth(mob)) {
-            long time = mob.ticksExisted;
+            long time = InfernalMobsCore.instance()
+                .getCooldownTime(mob);
             if (time > nextAbilityUse) {
                 nextAbilityUse = time + coolDown;
                 InfernalMobsCore.instance()
@@ -55,7 +56,9 @@ public class MM_Regen extends MobModifier {
         @Override
         public void loadConfig(Configuration config) {
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 500L, "Time between ability uses")
-                .getInt(500) / 50;
+                .getInt(500)
+                / InfernalMobsCore.instance()
+                    .getOldIFFactor();
         }
     }
 }

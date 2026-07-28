@@ -8,6 +8,8 @@ import net.minecraft.potion.Potion;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.config.Configuration;
 
+import atomicstryker.infernalmobs.common.InfernalMobsCore;
+
 public class MM_Alchemist extends MobModifier {
 
     private static final float MIN_DISTANCE = 2F;
@@ -22,7 +24,8 @@ public class MM_Alchemist extends MobModifier {
 
     @Override
     public boolean onUpdate(EntityLivingBase mob) {
-        long time = mob.ticksExisted;
+        long time = InfernalMobsCore.instance()
+            .getCooldownTime(mob);
         if (time > nextAbilityUse) {
             nextAbilityUse = time + coolDown;
             tryAbility(mob, getMobTarget());
@@ -82,7 +85,9 @@ public class MM_Alchemist extends MobModifier {
         @Override
         public void loadConfig(Configuration config) {
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 6000L, "Time between ability uses")
-                .getInt(6000) / 50;
+                .getInt(6000)
+                / InfernalMobsCore.instance()
+                    .getOldIFFactor();
         }
     }
 }

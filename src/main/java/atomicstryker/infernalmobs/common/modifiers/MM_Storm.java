@@ -8,6 +8,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.config.Configuration;
 
+import atomicstryker.infernalmobs.common.InfernalMobsCore;
+
 public class MM_Storm extends MobModifier {
 
     private final static float MIN_DISTANCE = 3F;
@@ -34,7 +36,8 @@ public class MM_Storm extends MobModifier {
             return;
         }
 
-        long time = mob.ticksExisted;
+        long time = InfernalMobsCore.instance()
+            .getCooldownTime(mob);
         if (time > nextAbilityUse && mob.getDistanceToEntity(target) > MIN_DISTANCE
             && target.worldObj.canBlockSeeTheSky(
                 MathHelper.floor_double(target.posX),
@@ -70,7 +73,9 @@ public class MM_Storm extends MobModifier {
         @Override
         public void loadConfig(Configuration config) {
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 15000L, "Time between ability uses")
-                .getInt(15000) / 50;
+                .getInt(15000)
+                / InfernalMobsCore.instance()
+                    .getOldIFFactor();
         }
     }
 }
