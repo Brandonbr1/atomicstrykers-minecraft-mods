@@ -7,7 +7,11 @@ import net.minecraftforge.common.config.Configuration;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MM_Regen extends MobModifier {
+    private static final List<Class<?>> bannedClasses = new ArrayList<>();
 
     private static final String[] suffix = { "ofWTFIMBA", "theCancerous", "ofFirstAid" };
     private static final String[] prefix = { "regenerating", "healing", "nighunkillable" };
@@ -42,6 +46,13 @@ public class MM_Regen extends MobModifier {
         return prefix;
     }
 
+
+    @Override
+    public Class<?>[] getBlackListMobClasses() {
+        return bannedClasses.toArray(new Class<?>[0]);
+    }
+
+
     public static class Loader extends ModifierLoader<MM_Regen> {
 
         public Loader() {
@@ -59,6 +70,15 @@ public class MM_Regen extends MobModifier {
                 .getInt(500)
                 / InfernalMobsCore.instance()
                     .getOldIFFactor();
+            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
+            try {
+                for (int i = 0; i < bannedClassString.length; i++) {
+                    Class<?> clazz = Class.forName(bannedClassString[i]);
+                    bannedClasses.add(clazz);
+                }
+            } catch (Exception e) {
+
+            }
         }
     }
 }

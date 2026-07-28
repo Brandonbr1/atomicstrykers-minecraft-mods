@@ -5,8 +5,14 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
+import net.minecraftforge.common.config.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MM_Exhaust extends MobModifier {
+
+    private static final List<Class<?>> bannedClasses = new ArrayList<>();
 
     private static final String[] suffix = { "ofFatigue", "theDrainer" };
     private static final String[] prefix = { "exhausting", "draining" };
@@ -32,6 +38,10 @@ public class MM_Exhaust extends MobModifier {
 
         return super.onAttack(entity, source, damage);
     }
+    @Override
+    public Class<?>[] getBlackListMobClasses() {
+        return bannedClasses.toArray(new Class<?>[0]);
+    }
 
     @Override
     protected String[] getModNameSuffix() {
@@ -52,6 +62,19 @@ public class MM_Exhaust extends MobModifier {
         @Override
         public MM_Exhaust make(@Nullable MobModifier next) {
             return new MM_Exhaust(next);
+        }
+
+        @Override
+        public void loadConfig(Configuration config) {
+            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
+            try {
+                for (int i = 0; i < bannedClassString.length; i++) {
+                    Class<?> clazz = Class.forName(bannedClassString[i]);
+                    bannedClasses.add(clazz);
+                }
+            } catch (Exception e) {
+
+            }
         }
     }
 }

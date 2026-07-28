@@ -11,7 +11,11 @@ import net.minecraftforge.common.config.Configuration;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MM_Darkness extends MobModifier {
+    private static final List<Class<?>> bannedClasses = new ArrayList<>();
 
     private static final String[] suffix = { "ofDarkness", "theShadow", "theEclipse" };
     private static final String[] prefix = { "dark", "shadowkin", "eclipsed" };
@@ -26,8 +30,7 @@ public class MM_Darkness extends MobModifier {
         if (source.getEntity() != null && (source.getEntity() instanceof EntityLivingBase)
             && InfernalMobsCore.instance()
                 .getIsEntityAllowedTarget(source.getEntity())
-            && !(source instanceof EntityDamageSourceIndirect)
-            && !source.isProjectile()) {
+            && !InfernalMobsCore.instance().isRangedProjectile(source)) {
             ((EntityLivingBase) source.getEntity())
                 .addPotionEffect(new PotionEffect(Potion.blindness.id, potionDuration, 0));
         }
@@ -43,6 +46,11 @@ public class MM_Darkness extends MobModifier {
         }
 
         return super.onAttack(entity, source, damage);
+    }
+
+    @Override
+    public Class<?>[] getBlackListMobClasses() {
+        return bannedClasses.toArray(new Class<?>[0]);
     }
 
     @Override
@@ -71,6 +79,16 @@ public class MM_Darkness extends MobModifier {
             potionDuration = config
                 .get(getModifierClassName(), "darknessDurationTicks", 120L, "Time attacker is darkened")
                 .getInt(120);
+
+            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
+            try {
+                for (int i = 0; i < bannedClassString.length; i++) {
+                    Class<?> clazz = Class.forName(bannedClassString[i]);
+                    bannedClasses.add(clazz);
+                }
+            } catch (Exception e) {
+
+            }
         }
     }
 }

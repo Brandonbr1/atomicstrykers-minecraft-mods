@@ -11,11 +11,15 @@ import net.minecraftforge.common.config.Configuration;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MM_Poisonous extends MobModifier {
 
     private static final String[] suffix = { "ofVenom", "thedeadlyChalice" };
     private static final String[] prefix = { "poisonous", "stinging", "despoiling" };
     private static int potionDuration;
+    private static final List<Class<?>> bannedClasses = new ArrayList<>();
 
     public MM_Poisonous(@Nullable MobModifier next) {
         super("Poisonous", next);
@@ -27,8 +31,7 @@ public class MM_Poisonous extends MobModifier {
             && InfernalMobsCore.instance()
                 .getIsEntityAllowedTarget(source.getEntity())) {
             EntityLivingBase ent = (EntityLivingBase) source.getEntity();
-            if (!ent.isPotionActive(Potion.poison) && !(source instanceof EntityDamageSourceIndirect)
-                && !source.isProjectile()) {
+            if (!ent.isPotionActive(Potion.poison) && !InfernalMobsCore.instance().isRangedProjectile(source)) {
                 ent.addPotionEffect(new PotionEffect(Potion.poison.id, potionDuration, 0));
             }
         }
@@ -44,6 +47,11 @@ public class MM_Poisonous extends MobModifier {
         }
 
         return super.onAttack(entity, source, damage);
+    }
+
+    @Override
+    public Class<?>[] getBlackListMobClasses() {
+        return bannedClasses.toArray(new Class<?>[0]);
     }
 
     @Override
@@ -72,6 +80,15 @@ public class MM_Poisonous extends MobModifier {
             potionDuration = config
                 .get(getModifierClassName(), "poisonDurationTicks", 120L, "Time attacker is poisoned")
                 .getInt(120);
+            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
+            try {
+                for (int i = 0; i < bannedClassString.length; i++) {
+                    Class<?> clazz = Class.forName(bannedClassString[i]);
+                    bannedClasses.add(clazz);
+                }
+            } catch (Exception e) {
+
+            }
         }
     }
 }

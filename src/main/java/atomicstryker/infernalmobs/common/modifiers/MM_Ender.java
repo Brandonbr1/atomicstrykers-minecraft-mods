@@ -14,7 +14,11 @@ import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MM_Ender extends MobModifier {
+    private static final List<Class<?>> bannedClasses = new ArrayList<>();
 
     private static final String[] suffix = { "theEnderborn", "theTrickster" };
     private static final String[] prefix = { "enderborn", "tricky" };
@@ -129,6 +133,11 @@ public class MM_Ender extends MobModifier {
     }
 
     @Override
+    public Class<?>[] getBlackListMobClasses() {
+        return bannedClasses.toArray(new Class<?>[0]);
+    }
+
+    @Override
     protected String[] getModNameSuffix() {
         return suffix;
     }
@@ -167,6 +176,16 @@ public class MM_Ender extends MobModifier {
                 10.0D,
                 "When a mob with Ender modifier gets hurt it teleports and reflects some of the damage originally dealt. This sets the maximum amount that can be inflicted (0, or less than zero for unlimited reflect damage)")
                 .getDouble(10.0D);
+            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
+            try {
+                for (int i = 0; i < bannedClassString.length; i++) {
+                    Class<?> clazz = Class.forName(bannedClassString[i]);
+                    bannedClasses.add(clazz);
+                }
+            } catch (Exception e) {
+
+            }
+
         }
     }
 }

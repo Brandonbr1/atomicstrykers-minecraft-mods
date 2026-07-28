@@ -7,9 +7,12 @@ import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.config.Configuration;
 
-public class MM_Berserk extends MobModifier {
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final Class<?>[] disallowed = { EntityCreeper.class };
+public class MM_Berserk extends MobModifier {
+    private static final List<Class<?>> bannedClasses = new ArrayList<>();
+
     private static final String[] suffix = { "ofRecklessness", "theRaging", "ofSmashing" };
     private static final String[] prefix = { "reckless", "raging", "smashing" };
     private static float damageMultiplier;
@@ -32,7 +35,7 @@ public class MM_Berserk extends MobModifier {
 
     @Override
     public Class<?>[] getBlackListMobClasses() {
-        return disallowed;
+        return bannedClasses.toArray(new Class<?>[0]);
     }
 
     @Override
@@ -67,6 +70,16 @@ public class MM_Berserk extends MobModifier {
                 0.0D,
                 "Maximum amount of damage that a mob with Berserk can deal (0, or less than zero for unlimited berserk damage)")
                 .getDouble(0.0D);
+
+            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{"net.minecraft.entity.monster.EntityCreeper"}, "Fully Qualified Mob classes which can not have this effect.");
+            try {
+                for (int i = 0; i < bannedClassString.length; i++) {
+                    Class<?> clazz = Class.forName(bannedClassString[i]);
+                    bannedClasses.add(clazz);
+                }
+            } catch (Exception e) {
+
+            }
         }
     }
 }

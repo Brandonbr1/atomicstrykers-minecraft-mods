@@ -26,6 +26,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -114,7 +116,8 @@ public class InfernalMobsCore {
     private boolean disableHealthBar;
     private double modHealthFactor;
     private int oldIFFactor;
-    public boolean useSystemTime;
+    private boolean useSystemTime;
+    private boolean projectilesActivateAllEffects;
 
     private Entity infCheckA;
     private Entity infCheckB;
@@ -277,6 +280,7 @@ public class InfernalMobsCore {
         healthCanGoPastOriginalMob = config.get(Configuration.CATEGORY_GENERAL, "healthCanGoPastOriginalMob", false, "If a Mob's health is able to go beyond its original max health. False is original behaviour, true is new GTNH behaviour").getBoolean(false);
         reflectionFiresFromThorns = config.get(Configuration.CATEGORY_GENERAL, "Vengeance activates if thorns", false, "Should thorns cause vengeance to activate?").getBoolean(false);
         oldIFFactor = config.get(Configuration.CATEGORY_GENERAL, "Infernal Mobs timer factor", 50, "The amount in which the cooldowns are divided by. 50 is GTNH. 1 is Original").getInt(50);
+        projectilesActivateAllEffects = config.get(Configuration.CATEGORY_GENERAL, "All Infernal Mobs active when shot by projectile", false, "If a mob is shot by a projecttile, should Darkness, Fiery,Sticky, and Wither activate? False is GTNH behaviour, true is original behaviour").getBoolean(false);
 
         useSystemTime = config.get(Configuration.CATEGORY_GENERAL, "Use System time for cooldowns", false, "Should System.currentTimeMillis() be used instead of mob.ticksExisted. False is GTNH. True is Original").getBoolean(false);
         // spotless:on
@@ -941,6 +945,14 @@ public class InfernalMobsCore {
             return false;
         }
         return damageSource.equals("thorns");
+    }
+
+    public boolean isRangedProjectile(DamageSource source) {
+        if (projectilesActivateAllEffects) {
+            return false;
+        }
+
+        return source instanceof EntityDamageSourceIndirect && source.isProjectile();
     }
 
     public int getOldIFFactor() {

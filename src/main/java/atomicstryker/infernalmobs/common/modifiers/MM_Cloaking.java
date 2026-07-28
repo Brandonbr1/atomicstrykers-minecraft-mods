@@ -11,10 +11,14 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.config.Configuration;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
+import org.lwjgl.Sys;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MM_Cloaking extends MobModifier {
-
-    private static final Class<?>[] disallowed = { EntitySpider.class };
+    private static final List<Class<?>> bannedClasses = new ArrayList<>();
     private static final String[] suffix = { "ofStalking", "theUnseen", "thePredator" };
     private static final String[] prefix = { "stalking", "unseen", "hunting" };
     private static long coolDown;
@@ -54,7 +58,7 @@ public class MM_Cloaking extends MobModifier {
 
     @Override
     public Class<?>[] getBlackListMobClasses() {
-        return disallowed;
+        return bannedClasses.toArray(new Class<?>[0]);
     }
 
     @Override
@@ -86,6 +90,14 @@ public class MM_Cloaking extends MobModifier {
                 .getInt(12000)
                 / InfernalMobsCore.instance()
                     .getOldIFFactor();
+            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{"net.minecraft.entity.monster.EntitySpider"}, "Fully Qualified Mob classes which can not have this effect.");
+            try {
+                for (int i = 0; i < bannedClassString.length; i++) {
+                    Class<?> clazz = Class.forName(bannedClassString[i]);
+                    bannedClasses.add(clazz);
+                }
+            } catch (Exception e) {
+            }
         }
     }
 }

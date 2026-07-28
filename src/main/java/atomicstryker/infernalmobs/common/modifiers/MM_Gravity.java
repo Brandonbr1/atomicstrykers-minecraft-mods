@@ -11,7 +11,11 @@ import net.minecraftforge.common.config.Configuration;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MM_Gravity extends MobModifier {
+    private static final List<Class<?>> bannedClasses = new ArrayList<>();
 
     private static final Class<?>[] modBans = { MM_Webber.class };
     private static final String[] suffix = { "ofRepulsion", "theFlipper" };
@@ -109,6 +113,11 @@ public class MM_Gravity extends MobModifier {
         return prefix;
     }
 
+    @Override
+    public Class<?>[] getBlackListMobClasses() {
+        return bannedClasses.toArray(new Class<?>[0]);
+    }
+
     public static class Loader extends ModifierLoader<MM_Gravity> {
 
         public Loader() {
@@ -129,6 +138,16 @@ public class MM_Gravity extends MobModifier {
             double maxDistance = config.get(getModifierClassName(), "maxDistance", 40, "Range of ability.")
                 .getDouble(40);
             maxDistanceSquared = maxDistance * maxDistance;
+
+            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
+            try {
+                for (int i = 0; i < bannedClassString.length; i++) {
+                    Class<?> clazz = Class.forName(bannedClassString[i]);
+                    bannedClasses.add(clazz);
+                }
+            } catch (Exception e) {
+
+            }
         }
     }
 }

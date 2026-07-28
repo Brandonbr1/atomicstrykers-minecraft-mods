@@ -10,7 +10,13 @@ import net.minecraftforge.common.config.Configuration;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MM_Storm extends MobModifier {
+
+    private static final List<Class<?>> bannedClasses = new ArrayList<>();
+
 
     private final static float MIN_DISTANCE = 3F;
     private static final String[] suffix = { "ofLightning", "theRaiden" };
@@ -76,6 +82,16 @@ public class MM_Storm extends MobModifier {
                 .getInt(15000)
                 / InfernalMobsCore.instance()
                     .getOldIFFactor();
+
+            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
+            try {
+                for (int i = 0; i < bannedClassString.length; i++) {
+                    Class<?> clazz = Class.forName(bannedClassString[i]);
+                    bannedClasses.add(clazz);
+                }
+            } catch (Exception e) {
+
+            }
         }
     }
 }

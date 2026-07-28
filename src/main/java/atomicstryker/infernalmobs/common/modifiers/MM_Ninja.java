@@ -14,7 +14,12 @@ import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MM_Ninja extends MobModifier {
+
+    private static final List<Class<?>> bannedClasses = new ArrayList<>();
 
     private static final String[] suffix = { "theZenMaster", "ofEquilibrium", "ofInnerPeace" };
     private static final String[] prefix = { "totallyzen", "innerlypeaceful", "Ronin" };
@@ -129,6 +134,11 @@ public class MM_Ninja extends MobModifier {
         return prefix;
     }
 
+    @Override
+    public Class<?>[] getBlackListMobClasses() {
+        return bannedClasses.toArray(new Class<?>[0]);
+    }
+
     public static class Loader extends ModifierLoader<MM_Ninja> {
 
         public Loader() {
@@ -158,6 +168,16 @@ public class MM_Ninja extends MobModifier {
                 10.0D,
                 "When a mob with Ninja modifier gets hurt it teleports to the attacker and reflects some of the damage originally dealt. This sets the maximum amount that can be inflicted (0, or less than zero for unlimited reflect damage)")
                 .getDouble(10.0D);
+
+            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
+            try {
+                for (int i = 0; i < bannedClassString.length; i++) {
+                    Class<?> clazz = Class.forName(bannedClassString[i]);
+                    bannedClasses.add(clazz);
+                }
+            } catch (Exception e) {
+
+            }
         }
     }
 }
