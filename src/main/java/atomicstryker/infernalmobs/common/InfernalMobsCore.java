@@ -324,6 +324,7 @@ public class InfernalMobsCore {
 
         for (ModifierLoader<?> loader : modifierLoaders) {
             loader.loadConfig(config);
+            loader.bannedClasses.clear(); // clear arrayList, since we convert it to an array in each modifier.
         }
 
         if (config.hasChanged()) config.save();

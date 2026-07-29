@@ -6,11 +6,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.config.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MM_Bulwark extends MobModifier {
-    private static final List<Class<?>> bannedClasses = new ArrayList<>();
+
+    private static Class<?>[] disallowed = {};
     private static final String[] suffix = { "ofTurtling", "theDefender", "ofeffingArmor" };
     private static final String[] prefix = { "turtling", "defensive", "armoured" };
     private static float damageMultiplier;
@@ -26,7 +24,7 @@ public class MM_Bulwark extends MobModifier {
 
     @Override
     public Class<?>[] getBlackListMobClasses() {
-        return bannedClasses.toArray(new Class<?>[0]);
+        return disallowed;
     }
 
     @Override
@@ -42,7 +40,7 @@ public class MM_Bulwark extends MobModifier {
     public static class Loader extends ModifierLoader<MM_Bulwark> {
 
         public Loader() {
-            super(MM_Bulwark.class);
+            super(MM_Bulwark.class, emptyString);
         }
 
         @Override
@@ -52,6 +50,7 @@ public class MM_Bulwark extends MobModifier {
 
         @Override
         public void loadConfig(Configuration config) {
+            super.loadConfig(config);
             damageMultiplier = (float) config
                 .get(
                     getModifierClassName(),
@@ -59,16 +58,7 @@ public class MM_Bulwark extends MobModifier {
                     0.5D,
                     "Damage (taken) multiplier, only makes sense for values < 1.0")
                 .getDouble(0.5D);
-
-            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
-            try {
-                for (int i = 0; i < bannedClassString.length; i++) {
-                    Class<?> clazz = Class.forName(bannedClassString[i]);
-                    bannedClasses.add(clazz);
-                }
-            } catch (Exception e) {
-
-            }
+            disallowed = getBannedClassesToArray();
         }
     }
 }

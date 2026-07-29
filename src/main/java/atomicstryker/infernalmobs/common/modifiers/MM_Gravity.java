@@ -11,11 +11,9 @@ import net.minecraftforge.common.config.Configuration;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MM_Gravity extends MobModifier {
-    private static final List<Class<?>> bannedClasses = new ArrayList<>();
+
+    private static Class<?>[] disallowed = {};
 
     private static final Class<?>[] modBans = { MM_Webber.class };
     private static final String[] suffix = { "ofRepulsion", "theFlipper" };
@@ -115,13 +113,13 @@ public class MM_Gravity extends MobModifier {
 
     @Override
     public Class<?>[] getBlackListMobClasses() {
-        return bannedClasses.toArray(new Class<?>[0]);
+        return disallowed;
     }
 
     public static class Loader extends ModifierLoader<MM_Gravity> {
 
         public Loader() {
-            super(MM_Gravity.class);
+            super(MM_Gravity.class, emptyString);
         }
 
         @Override
@@ -131,6 +129,7 @@ public class MM_Gravity extends MobModifier {
 
         @Override
         public void loadConfig(Configuration config) {
+            super.loadConfig(config);
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 5000L, "Time between ability uses")
                 .getInt(5000)
                 / InfernalMobsCore.instance()
@@ -139,15 +138,7 @@ public class MM_Gravity extends MobModifier {
                 .getDouble(40);
             maxDistanceSquared = maxDistance * maxDistance;
 
-            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
-            try {
-                for (int i = 0; i < bannedClassString.length; i++) {
-                    Class<?> clazz = Class.forName(bannedClassString[i]);
-                    bannedClasses.add(clazz);
-                }
-            } catch (Exception e) {
-
-            }
+            disallowed = getBannedClassesToArray();
         }
     }
 }

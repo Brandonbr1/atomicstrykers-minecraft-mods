@@ -3,15 +3,12 @@ package atomicstryker.infernalmobs.common.modifiers;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.config.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MM_Berserk extends MobModifier {
-    private static final List<Class<?>> bannedClasses = new ArrayList<>();
+
+    private static Class<?>[] disallowed = {};
 
     private static final String[] suffix = { "ofRecklessness", "theRaging", "ofSmashing" };
     private static final String[] prefix = { "reckless", "raging", "smashing" };
@@ -35,7 +32,7 @@ public class MM_Berserk extends MobModifier {
 
     @Override
     public Class<?>[] getBlackListMobClasses() {
-        return bannedClasses.toArray(new Class<?>[0]);
+        return disallowed;
     }
 
     @Override
@@ -51,7 +48,7 @@ public class MM_Berserk extends MobModifier {
     public static class Loader extends ModifierLoader<MM_Berserk> {
 
         public Loader() {
-            super(MM_Berserk.class);
+            super(MM_Berserk.class, creeperString);
         }
 
         @Override
@@ -61,6 +58,7 @@ public class MM_Berserk extends MobModifier {
 
         @Override
         public void loadConfig(Configuration config) {
+            super.loadConfig(config);
             damageMultiplier = (float) config
                 .get(getModifierClassName(), "damageMultiplier", 2.0D, "Damage multiplier, limited by maxOneShotDamage")
                 .getDouble(2.0D);
@@ -71,15 +69,7 @@ public class MM_Berserk extends MobModifier {
                 "Maximum amount of damage that a mob with Berserk can deal (0, or less than zero for unlimited berserk damage)")
                 .getDouble(0.0D);
 
-            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{"net.minecraft.entity.monster.EntityCreeper"}, "Fully Qualified Mob classes which can not have this effect.");
-            try {
-                for (int i = 0; i < bannedClassString.length; i++) {
-                    Class<?> clazz = Class.forName(bannedClassString[i]);
-                    bannedClasses.add(clazz);
-                }
-            } catch (Exception e) {
-
-            }
+            disallowed = getBannedClassesToArray();
         }
     }
 }

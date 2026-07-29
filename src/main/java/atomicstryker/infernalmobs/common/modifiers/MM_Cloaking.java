@@ -3,7 +3,6 @@ package atomicstryker.infernalmobs.common.modifiers;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -11,14 +10,10 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.config.Configuration;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
-import org.lwjgl.Sys;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class MM_Cloaking extends MobModifier {
-    private static final List<Class<?>> bannedClasses = new ArrayList<>();
+
+    private static Class<?>[] disallowed = {};
     private static final String[] suffix = { "ofStalking", "theUnseen", "thePredator" };
     private static final String[] prefix = { "stalking", "unseen", "hunting" };
     private static long coolDown;
@@ -58,7 +53,7 @@ public class MM_Cloaking extends MobModifier {
 
     @Override
     public Class<?>[] getBlackListMobClasses() {
-        return bannedClasses.toArray(new Class<?>[0]);
+        return disallowed;
     }
 
     @Override
@@ -74,7 +69,7 @@ public class MM_Cloaking extends MobModifier {
     public static class Loader extends ModifierLoader<MM_Cloaking> {
 
         public Loader() {
-            super(MM_Cloaking.class);
+            super(MM_Cloaking.class, spiderString);
         }
 
         @Override
@@ -84,20 +79,14 @@ public class MM_Cloaking extends MobModifier {
 
         @Override
         public void loadConfig(Configuration config) {
+            super.loadConfig(config);
             potionDuration = config.get(getModifierClassName(), "cloakingDurationTicks", 200L, "Time mob is cloaked")
                 .getInt(200);
             coolDown = config.get(getModifierClassName(), "coolDownMillis", 12000L, "Time between ability uses")
                 .getInt(12000)
                 / InfernalMobsCore.instance()
                     .getOldIFFactor();
-            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{"net.minecraft.entity.monster.EntitySpider"}, "Fully Qualified Mob classes which can not have this effect.");
-            try {
-                for (int i = 0; i < bannedClassString.length; i++) {
-                    Class<?> clazz = Class.forName(bannedClassString[i]);
-                    bannedClasses.add(clazz);
-                }
-            } catch (Exception e) {
-            }
+            disallowed = getBannedClassesToArray();
         }
     }
 }

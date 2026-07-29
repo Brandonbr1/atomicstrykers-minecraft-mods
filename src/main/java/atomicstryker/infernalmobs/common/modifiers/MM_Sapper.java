@@ -10,12 +10,9 @@ import net.minecraftforge.common.config.Configuration;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MM_Sapper extends MobModifier {
-    private static final List<Class<?>> bannedClasses = new ArrayList<>();
 
+    private static Class<?>[] disallowed = {};
     private static final String[] suffix = { "ofHunger", "thePaleRider" };
     private static final String[] prefix = { "hungering", "starving" };
     private static int potionDuration;
@@ -50,9 +47,8 @@ public class MM_Sapper extends MobModifier {
 
     @Override
     public Class<?>[] getBlackListMobClasses() {
-        return bannedClasses.toArray(new Class<?>[0]);
+        return disallowed;
     }
-
 
     @Override
     protected String[] getModNameSuffix() {
@@ -67,7 +63,7 @@ public class MM_Sapper extends MobModifier {
     public static class Loader extends ModifierLoader<MM_Sapper> {
 
         public Loader() {
-            super(MM_Sapper.class);
+            super(MM_Sapper.class, emptyString);
         }
 
         @Override
@@ -77,18 +73,11 @@ public class MM_Sapper extends MobModifier {
 
         @Override
         public void loadConfig(Configuration config) {
+            super.loadConfig(config);
             potionDuration = config
                 .get(getModifierClassName(), "hungerDurationTicks", 120L, "Time attacker is hungering")
                 .getInt(120);
-            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
-            try {
-                for (int i = 0; i < bannedClassString.length; i++) {
-                    Class<?> clazz = Class.forName(bannedClassString[i]);
-                    bannedClasses.add(clazz);
-                }
-            } catch (Exception e) {
-
-            }
+            disallowed = getBannedClassesToArray();
         }
     }
 }

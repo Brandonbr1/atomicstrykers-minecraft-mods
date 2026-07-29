@@ -7,11 +7,9 @@ import net.minecraftforge.common.config.Configuration;
 
 import atomicstryker.infernalmobs.common.InfernalMobsCore;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MM_1UP extends MobModifier {
-    private static final List<Class<?>> bannedClasses = new ArrayList<>();
+
+    private static Class<?>[] disallowed = {};
 
     private static final String[] suffix = { "ofRecurrence", "theUndying", "oftwinLives" };
     private static final String[] prefix = { "recurring", "undying", "twinlived" };
@@ -35,7 +33,7 @@ public class MM_1UP extends MobModifier {
 
     @Override
     public Class<?>[] getBlackListMobClasses() {
-       return bannedClasses.toArray(new Class<?>[0]);
+        return disallowed;
     }
 
     @Override
@@ -51,7 +49,7 @@ public class MM_1UP extends MobModifier {
     public static class Loader extends ModifierLoader<MM_1UP> {
 
         public Loader() {
-            super(MM_1UP.class);
+            super(MM_1UP.class, creeperString);
         }
 
         @Override
@@ -61,22 +59,14 @@ public class MM_1UP extends MobModifier {
 
         @Override
         public void loadConfig(Configuration config) {
+            super.loadConfig(config);
             healAmount = config.get(
                 getModifierClassName(),
                 "healAmountMultiplier",
                 1.0D,
                 "Multiplies the mob maximum health when healing back up, cannot get past maximum mob health(if healthCanGoPastOriginalMob is false)")
                 .getDouble(1.0D);
-
-            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{"net.minecraft.entity.monster.EntityCreeper"}, "Fully Qualified Mob classes which can not have this effect.");
-            try {
-                for (int i = 0; i < bannedClassString.length; i++) {
-                    Class<?> clazz = Class.forName(bannedClassString[i]);
-                    bannedClasses.add(clazz);
-                }
-            } catch (Exception e) {
-
-            }
+            disallowed = getBannedClassesToArray();
         }
     }
 }

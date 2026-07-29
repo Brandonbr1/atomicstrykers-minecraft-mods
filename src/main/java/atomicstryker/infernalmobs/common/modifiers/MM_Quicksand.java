@@ -5,16 +5,13 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-
-import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import net.minecraftforge.common.config.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
+import atomicstryker.infernalmobs.common.InfernalMobsCore;
 
 public class MM_Quicksand extends MobModifier {
-    private static final List<Class<?>> bannedClasses = new ArrayList<>();
 
+    private static Class<?>[] disallowed = {};
     private static final String[] suffix = { "ofYouCantRun", "theSlowingB" };
     private static final String[] prefix = { "slowing", "Quicksand" };
     int ticker = 0;
@@ -46,27 +43,19 @@ public class MM_Quicksand extends MobModifier {
 
     @Override
     public Class<?>[] getBlackListMobClasses() {
-        return bannedClasses.toArray(new Class<?>[0]);
+        return disallowed;
     }
-
 
     public static class Loader extends ModifierLoader<MM_Quicksand> {
 
         public Loader() {
-            super(MM_Quicksand.class);
+            super(MM_Quicksand.class, emptyString);
         }
 
         @Override
         public void loadConfig(Configuration config) {
-            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
-            try {
-                for (int i = 0; i < bannedClassString.length; i++) {
-                    Class<?> clazz = Class.forName(bannedClassString[i]);
-                    bannedClasses.add(clazz);
-                }
-            } catch (Exception e) {
-
-            }
+            super.loadConfig(config);
+            disallowed = getBannedClassesToArray();
         }
 
         @Override

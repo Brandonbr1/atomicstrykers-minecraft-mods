@@ -4,15 +4,11 @@ import javax.annotation.Nullable;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.config.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MM_Unyielding extends MobModifier {
-    private static final List<Class<?>> bannedClasses = new ArrayList<>();
 
+    private static Class<?>[] disallowed = {};
     private static final String[] suffix = { "ofRelentlessness", "theUnYielding", "theUnstoppable" };
     private static final String[] prefix = { "relentless", "unyielding", "unstoppable" };
 
@@ -21,11 +17,11 @@ public class MM_Unyielding extends MobModifier {
     }
 
     @Override
-    public float onHurt(EntityLivingBase mob, DamageSource source, float amount) {
+    public boolean onUpdate(EntityLivingBase mob) {
         mob.getEntityAttribute(SharedMonsterAttributes.knockbackResistance)
             .setBaseValue(Double.MAX_VALUE);
 
-        return super.onHurt(mob, source, amount);
+        return super.onUpdate(mob);
     }
 
     @Override
@@ -40,14 +36,13 @@ public class MM_Unyielding extends MobModifier {
 
     @Override
     public Class<?>[] getBlackListMobClasses() {
-        return bannedClasses.toArray(new Class<?>[0]);
+        return disallowed;
     }
-
 
     public static class Loader extends ModifierLoader<MM_Unyielding> {
 
         public Loader() {
-            super(MM_Unyielding.class);
+            super(MM_Unyielding.class, emptyString);
         }
 
         @Override
@@ -57,15 +52,8 @@ public class MM_Unyielding extends MobModifier {
 
         @Override
         public void loadConfig(Configuration config) {
-            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
-            try {
-                for (int i = 0; i < bannedClassString.length; i++) {
-                    Class<?> clazz = Class.forName(bannedClassString[i]);
-                    bannedClasses.add(clazz);
-                }
-            } catch (Exception e) {
-
-            }
+            super.loadConfig(config);
+            disallowed = getBannedClassesToArray();
         }
     }
 }

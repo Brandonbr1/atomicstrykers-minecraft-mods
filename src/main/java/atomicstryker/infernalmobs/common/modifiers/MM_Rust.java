@@ -8,11 +8,9 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSourceIndirect;
 import net.minecraftforge.common.config.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MM_Rust extends MobModifier {
-    private static final List<Class<?>> bannedClasses = new ArrayList<>();
+
+    private static Class<?>[] disallowed = {};
 
     private static final String[] suffix = { "ofDecay", "theEquipmentHaunter" };
     private static final String[] prefix = { "rusting", "decaying" };
@@ -57,14 +55,13 @@ public class MM_Rust extends MobModifier {
 
     @Override
     public Class<?>[] getBlackListMobClasses() {
-        return bannedClasses.toArray(new Class<?>[0]);
+        return disallowed;
     }
-
 
     public static class Loader extends ModifierLoader<MM_Rust> {
 
         public Loader() {
-            super(MM_Rust.class);
+            super(MM_Rust.class, emptyString);
         }
 
         @Override
@@ -74,19 +71,12 @@ public class MM_Rust extends MobModifier {
 
         @Override
         public void loadConfig(Configuration config) {
+            super.loadConfig(config);
             itemDamage = config
                 .get(getModifierClassName(), "itemDamage", 4, "Damage dealt to Item in hand of attacking entity")
                 .getInt(4);
 
-            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
-            try {
-                for (int i = 0; i < bannedClassString.length; i++) {
-                    Class<?> clazz = Class.forName(bannedClassString[i]);
-                    bannedClasses.add(clazz);
-                }
-            } catch (Exception e) {
-
-            }
+            disallowed = getBannedClassesToArray();
         }
     }
 }

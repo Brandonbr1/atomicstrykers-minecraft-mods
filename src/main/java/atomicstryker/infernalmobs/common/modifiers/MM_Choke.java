@@ -1,7 +1,5 @@
 package atomicstryker.infernalmobs.common.modifiers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -10,12 +8,13 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
-
-import atomicstryker.infernalmobs.common.InfernalMobsCore;
 import net.minecraftforge.common.config.Configuration;
 
+import atomicstryker.infernalmobs.common.InfernalMobsCore;
+
 public class MM_Choke extends MobModifier {
-    private static final List<Class<?>> bannedClasses = new ArrayList<>();
+
+    private static Class<?>[] disallowed = {};
     private static final String[] suffix = { "ofBreathlessness", "theAnaerobic", "ofDeprivation" };
     private static final String[] prefix = { "Sith Lord", "Dark Lord", "Darth" };
     private EntityLivingBase lastTarget;
@@ -97,9 +96,10 @@ public class MM_Choke extends MobModifier {
             }
         }
     }
+
     @Override
     public Class<?>[] getBlackListMobClasses() {
-        return bannedClasses.toArray(new Class<?>[0]);
+        return disallowed;
     }
 
     @Override
@@ -120,9 +120,8 @@ public class MM_Choke extends MobModifier {
     public static class Loader extends ModifierLoader<MM_Choke> {
 
         public Loader() {
-            super(MM_Choke.class);
+            super(MM_Choke.class, emptyString);
         }
-
 
         @Override
         public MM_Choke make(@Nullable MobModifier next) {
@@ -131,15 +130,8 @@ public class MM_Choke extends MobModifier {
 
         @Override
         public void loadConfig(Configuration config) {
-            String[] bannedClassString = config.getStringList("Disallowed Mob Classes", getModifierClassName(), new String[]{""}, "Fully Qualified Mob classes which can not have this effect.");
-            try {
-                for (int i = 0; i < bannedClassString.length; i++) {
-                    Class<?> clazz = Class.forName(bannedClassString[i]);
-                    bannedClasses.add(clazz);
-                }
-            } catch (Exception e) {
-
-            }
+            super.loadConfig(config);
+            disallowed = getBannedClassesToArray();
         }
     }
 }
